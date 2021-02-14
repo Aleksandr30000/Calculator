@@ -3,7 +3,6 @@
     <string name="div">/</string>
     <string name="eq">=</string>
     <string name="com">,</string>
-    <string name="zero">0</string>
     <string name="mul">*</string>
     <string name="three">3</string>
     <string name="two">2</string>
@@ -17,4 +16,5 @@
     <string name="eight">8</string>
     <string name="seven">7</string>
     <string name="reset">C</string>
+    <string name="zero">0</string>
 </resources>

@@ -1,5 +1,6 @@
 package ru.geekbrains.calc;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -7,10 +8,30 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.text.DecimalFormat;
+
+public class MainActivity extends AppCompatActivity {
+
+    private final static String keyMaths = "Maths";
+
+    // Сохранение данных
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle instanceState) {
+        super.onSaveInstanceState(instanceState);
+        instanceState.putParcelable(keyMaths, maths);
+    }
+
+    // Восстановление данных
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle instanceState) {
+        super.onRestoreInstanceState(instanceState);
+        maths = (Maths) instanceState.getParcelable(keyMaths);
+    }
 
     private Maths maths;
     private EditText text_edit;
+    private boolean varSign = false;
+    DecimalFormat decimalFormat = new DecimalFormat("#.#######");//только 7 знаков после запятой
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_nine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(9);
-                text_edit.setText("9");
+                display(9);
             }
         });
     }
@@ -58,8 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_eight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(8);
-                text_edit.setText("8");
+                display(8);
             }
         });
     }
@@ -69,8 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_seven.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(7);
-                text_edit.setText("7");
+                display(7);
             }
         });
     }
@@ -80,8 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_six.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(6);
-                text_edit.setText("6");
+                display(6);
             }
         });
     }
@@ -91,8 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_five.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(5);
-                text_edit.setText("5");
+                display(5);
             }
         });
     }
@@ -102,8 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_four.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(4);
-                text_edit.setText("4");
+                display(4);
             }
         });
     }
@@ -113,8 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_three.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(3);
-                text_edit.setText("3");
+                display(3);
             }
         });
     }
@@ -124,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_two.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(2);
-                text_edit.setText("2");
+                display(2);
             }
         });
     }
@@ -136,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 maths.answer();
-                text_edit.setText(String.valueOf(maths.getC()));
+                text_edit.setText(decimalFormat.format(maths.getC()));
             }
         });
     }
@@ -146,7 +159,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_com.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                maths.setSign(",");      // пока не работает
+                maths.setPoint(true);
+                text_edit.setText(text_edit.getText() + ".");
             }
         });
     }
@@ -157,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 maths.setSign(3);
+                varSign = true;
             }
         });
     }
@@ -167,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 maths.setSign(2);
+                varSign = true;
             }
         });
     }
@@ -177,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 maths.setSign(4);
+                varSign = true;
             }
         });
     }
@@ -187,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 maths.setSign(1);
+                varSign = true;
             }
         });
     }
@@ -196,8 +214,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_one.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(1);
-                text_edit.setText("1");
+                display(1);
             }
         });
     }
@@ -207,10 +224,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         button_zero.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                maths.option(0);
-                text_edit.setText("0");
+                display(0);
             }
         });
+    }
+
+    private void display(int x) {
+        double var;
+        if (String.valueOf(text_edit.getText()).equals("0") || varSign) {
+            varSign = false;
+            var = x;
+        } else if (maths.getPoint()) {
+            var = Double.parseDouble(decimalFormat.format(aOrB()) + "." + x);
+            maths.setPoint(false);
+        } else {
+            var = Double.parseDouble(decimalFormat.format(aOrB()) + x); //String.valueOf(text_edit.getText()) + x);
+        }
+        maths.option(var);
+        text_edit.setText(decimalFormat.format(var));
+    }
+
+    private double aOrB() {
+        if (maths.getSign() == 0) {
+            return maths.getA();
+        } else {
+            return maths.getB();
+        }
     }
 
     private void initButtonResetClickListener() {
@@ -223,12 +262,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 maths.setC(0);
                 maths.setSign(0);
                 text_edit.setText("0");
+                varSign = false;
             }
         });
     }
 
-    @Override
-    public void onClick(View v) {
-
-    }
 }
